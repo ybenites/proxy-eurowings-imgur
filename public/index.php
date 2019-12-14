@@ -20,5 +20,25 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response;
 });
 
+$routeCollector = $app->getRouteCollector();
+$routeCollector->setCacheFile(__DIR__.'/../CachePages/cache.file');
+
+$app->group('/api/v1', function ($app) {
+    $app->get('/{section}/{sort}/{window}/{page}', function (Request $request, Response $response, $args) {
+
+        $client = new Client();
+        $dataImgur = $client->request('GET', 'https://api.imgur.com/3/gallery/hot/viral/day/1', [
+            'headers' => [
+                'Authorization' => 'Client-ID ' . 'b35d72c36b0c7f3',
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ]
+        ]);
+
+        $response->getBody()->write($dataImgur->getBody()->getContents());
+        $status = $dataImgur->getStatusCode();
+
+        return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
+    });
+});
 
 $app->run();
